@@ -2,8 +2,22 @@ class weblogic::admin {
   include weblogic::os
   include weblogic::ssh
   include weblogic::java, orawls::urandomfix
-  include orawls::weblogic, orautils
-  #include bsu
+  include orautils
+
+  class {'orawls::weblogic':
+    version               => 1213,
+    filename              => 'fmw_12.1.3.0.0_wls.jar',
+    jdk_home_dir          => '/usr/java/latest',
+    oracle_base_home_dir  => '/opt/oracle',
+    middleware_home_dir   => '/opt/oracle/middleware12c',
+    os_user               => 'oracle',
+    os_group              => 'dba',
+    download_dir          => '/var/tmp/install',
+    source                => '/vagrant/weblogic-software',
+    log_output            => true,
+  }
+
+
   #include fmw
   #include opatch
   #include domains
