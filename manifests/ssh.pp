@@ -1,39 +1,42 @@
-class weblogic::ssh {
-  require weblogic::os
+class weblogic::ssh (
+    $oraUser       = 'oracle',
+    $oraGroup      = 'dba',
+    $oraUserHome   = '/home/oracle',
+    $sshPrivateKey = undef,
+    $sshPublicKey  = undef,
+  ) {
 
+  notify { 'debug':
+    message => "sshPrivateKey = ${sshPrivateKey}",
+  }
 
-  file { '/home/oracle/.ssh/':
+  File {
+    ensure => file,
+    mode   => 0644,
+    owner  => $oraUser,
+    group  => $oraGroup,
+  }
+
+  file { "${oraUserHome}/.ssh/":
     ensure => directory,
-    owner  => 'oracle',
-    group  => 'dba',
     mode   => '0700',
     alias  => 'oracle-ssh-dir',
   }
 
-  file { '/home/oracle/.ssh/id_rsa.pub':
-    ensure  => present,
-    owner   => 'oracle',
-    group   => 'dba',
-    mode    => '0644',
-    source  => 'puppet:///modules/weblogic/ssh/id_rsa.pub',
+  file { "${oraUserHome}/.ssh/id_rsa.pub":
+    source  => $sshPublicKey,
     require => File['oracle-ssh-dir'],
   }
 
-  file { '/home/oracle/.ssh/id_rsa':
-    ensure  => present,
-    owner   => 'oracle',
-    group   => 'dba',
+  file { "${oraUserHome}/.ssh/id_rsa":
+    ensure  => file,
     mode    => '0600',
-    source  => 'puppet:///modules/weblogic/ssh/id_rsa',
+    source  => $sshPrivateKey,
     require => File['oracle-ssh-dir'],
   }
 
-  file { '/home/oracle/.ssh/authorized_keys':
-    ensure  => present,
-    owner   => 'oracle',
-    group   => 'dba',
-    mode    => '0644',
-    source  => 'puppet:///modules/weblogic/ssh/id_rsa.pub',
+  file { "${oraUserHome}/.ssh/authorized_keys":
+    source  => $sshPublicKey,
     require => File['oracle-ssh-dir'],
   }
 }

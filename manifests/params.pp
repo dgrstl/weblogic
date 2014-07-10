@@ -28,4 +28,17 @@ class weblogic::params {
   $oraGroup = $::osfamily ? {
     default => 'dba',
   }
+
+  $sourcePath = $::osfamily ? {
+    default => '/vagrant/weblogic-software',
+  }
+
+  $downloadDir = $::osfamily ? {
+    default => '/var/tmp/install',
+  }
+
+  $osHomeRoot = $::osfamily ? {
+    default => '/home',
+  }
+
 }

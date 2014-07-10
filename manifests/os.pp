@@ -1,16 +1,20 @@
 # operating settings for Middleware
 class weblogic::os (
-  $oraUser  = $weblogic::params::oraUser,
-  $oraGroup = $weblogic::params::oraGroup,
-  $oraLogs  = $weblogic::params::oraLogs,
-) inherits weblogic::params {
+  $oraUser  = 'oracle',
+  $osHomeRoot = '/home',
+  $oraGroup = 'dba',
+  $oraLogs  = '/var/log/oracle',
+  $osSwapSize = '4096',
+  $sshPrivateKey = undef,
+  $sshPublicKey  = undef,
+) {
 
-  $default_params = {}
-  $host_instances = hiera('hosts', {})
-  create_resources('host',$host_instances, $default_params)
+  #$default_params = {}
+  #$host_instances = hiera('hosts', {})
+  #create_resources('host',$host_instances, $default_params)
 
   exec { 'create swap file':
-    command => '/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024',
+    command => "/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=${osSwapSize}",
     creates => '/var/swap.1',
   }
 
@@ -34,21 +38,30 @@ class weblogic::os (
         hasstatus => true,
   }
 
-  group { 'dba' :
+  group { $oraGroup :
     ensure => present,
   }
 
   # http://raftaman.net/?p=1311 for generating password
   # password = oracle
-  user { 'oracle' :
+  user { $oraUser :
     ensure     => present,
-    groups     => 'dba',
+    groups     => $oraGroup,
     shell      => '/bin/bash',
     password   => '$1$DSJ51vh6$4XzzwyIOk6Bi/54kglGk3.',
-    home       => '/home/oracle',
+    home       => "${osHomeRoot}/${oraUser}",
     comment    => 'wls user created by Puppet',
     managehome => true,
-    require    => Group['dba'],
+    require    => Group[$oraGroup],
+  }
+
+  class {'weblogic::ssh':
+    oraUser       => $oraUser,
+    oraGroup      => $oraGroup,
+    oraUserHome   => "${osHomeRoot}/${oraUser}",
+    sshPrivateKey => $sshPrivateKey,
+    sshPublicKey  => $sshPublicKey,
+    require       => User[$oraUser],
   }
 
   $install = [ 'binutils.x86_64','unzip.x86_64']

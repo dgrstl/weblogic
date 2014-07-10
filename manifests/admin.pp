@@ -7,12 +7,37 @@ class weblogic::admin (
   $oraLogs       = $weblogic::params::oraLogs,
   $oraUser       = $weblogic::params::oraUser,
   $oraGroup      = $weblogic::params::oraGroup,
+  $sourcePath    = $weblogic::params::sourcePath,
+  $downloadDir   = $weblogic::params::downloadDir,
 
   ) inherits weblogic::params {
 
-  include weblogic::os
-  include weblogic::ssh
-  include weblogic::java, orawls::urandomfix
+  class {'weblogic::os':
+    oraUser       => $oraUser,
+    oraGroup      => $oraGroup,
+    oraLogs       => $oraLogs,
+    osSwapSize    => 1024,
+    sshPrivateKey => 'puppet:///modules/weblogic/ssh/id_rsa',
+    sshPublicKey  => 'puppet:///modules/weblogic/ssh/id_rsa.pub',
+  } contain 'weblogic::os'
+
+  $is64bit = $::hardwaremodel ? {
+    x86_64  => true,
+    default => false,
+  }
+
+  class {'weblogic::java':
+    version                   => '7u51',
+    fullVersion               => 'jdk1.7.0_51',
+    downloadDir               => $downloadDir,
+    cryptographyExtensionFile => 'UnlimitedJCEPolicyJDK7.zip',
+    sourcePath                => $sourcePath,
+    x64                       => $is64bit,
+    require                   => Class[Weblogic::Os],
+  } contain 'weblogic::java'
+
+  # this seem like a duplication of the jdk7::install urandomJavaFix option
+  #contain orawls::urandomfix
 
   class {'orautils':
     osOracleHomeParam       => $oraHome,
@@ -30,21 +55,22 @@ class weblogic::admin (
     customTrust             => true,
     trustKeystoreFile       => 'puppet:///modules/weblogic/oracle/truststore.jks',
     trustKeystorePassphrase => 'welcome',
-  }
+    require                 => Class[orawls::weblogic],
+  } contain 'orautils'
 
   class {'orawls::weblogic':
-    version               => '1213',
-    filename              => 'fmw_12.1.3.0.0_wls.jar',
-    jdk_home_dir          => '/usr/java/latest',
-    oracle_base_home_dir  => '/opt/oracle',
-    middleware_home_dir   => $oraMdwHome,
-    os_user               => $oraUser,
-    os_group              => $oraGroup,
-    download_dir          => '/var/tmp/install',
-    source                => '/vagrant/weblogic-software',
-    log_output            => true,
-  }
-
+    version              => '1213',
+    filename             => 'fmw_12.1.3.0.0_wls.jar',
+    jdk_home_dir         => '/usr/java/latest',
+    oracle_base_home_dir => $oraHome,
+    middleware_home_dir  => $oraMdwHome,
+    os_user              => $oraUser,
+    os_group             => $oraGroup,
+    download_dir         => $downloadDir,
+    source               => $sourcePath,
+    log_output           => true,
+    require              => Class[weblogic::java],
+  } contain 'orawls::weblogic'
 
   #include fmw
   #include opatch
@@ -76,6 +102,4 @@ class weblogic::admin (
   #include saf_imported_destination
   #include saf_imported_destination_objects
   #include pack_domain
-
-  Class[weblogic::os] -> Class[weblogic::java] -> Class[orawls::weblogic]
 }
