@@ -1,5 +1,9 @@
 # operating settings for Middleware
-class weblogic::os {
+class weblogic::os (
+  $oraUser  = $weblogic::params::oraUser,
+  $oraGroup = $weblogic::params::oraGroup,
+  $oraLogs  = $weblogic::params::oraLogs,
+) inherits weblogic::params {
 
   $default_params = {}
   $host_instances = hiera('hosts', {})
@@ -83,4 +87,10 @@ class weblogic::os {
   sysctl { 'net.core.wmem_default':         ensure => 'present', permanent => 'yes', value => '262144',}
   sysctl { 'net.core.wmem_max':             ensure => 'present', permanent => 'yes', value => '1048576',}
 
+file { $oraLogs:
+  ensure => 'file',
+  owner  => $oraUser,
+  group  => $oraGroup,
+  mode   => '0644',
+  }
 }

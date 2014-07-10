@@ -1,17 +1,45 @@
-class weblogic::admin {
+class weblogic::admin (
+
+  $oraHome       = $weblogic::params::oraHome,
+  $oraMdwHome    = $weblogic::params::oraMdwHome,
+  $oraDomain     = $weblogic::params::oraDomain,
+  $oraDomainRoot = $weblogic::params::oraDomain,
+  $oraLogs       = $weblogic::params::oraLogs,
+  $oraUser       = $weblogic::params::oraUser,
+  $oraGroup      = $weblogic::params::oraGroup,
+
+  ) inherits weblogic::params {
+
   include weblogic::os
   include weblogic::ssh
   include weblogic::java, orawls::urandomfix
-  include orautils
+
+  class {'orautils':
+    osOracleHomeParam       => $oraHome,
+    oraInventoryParam       => "${oraHome}/oraInventory",
+    osLogFolderParam        => $oraLogs,
+    osDomainTypeParam       => 'web', # ??
+    osDownloadFolderParam   => "${oraHome}/install", # ??
+    osDomainParam           => $oraDomain,
+    osMdwHomeParam          => $oraMdwHome,
+    osDomainPathParam       => "${oraDomainRoot}/${oraDomain}",
+    nodeMgrPathParam        => "${oraDomainRoot}/${oraDomain}/bin",
+    nodeMgrAddressParam     => 'centos65a',
+    wlsPasswordParam        => 'weblogic1',
+    wlsAdminServerParam     => 'AdminServer',
+    customTrust             => true,
+    trustKeystoreFile       => 'puppet:///modules/weblogic/oracle/truststore.jks',
+    trustKeystorePassphrase => 'welcome',
+  }
 
   class {'orawls::weblogic':
-    version               => 1213,
+    version               => '1213',
     filename              => 'fmw_12.1.3.0.0_wls.jar',
     jdk_home_dir          => '/usr/java/latest',
     oracle_base_home_dir  => '/opt/oracle',
-    middleware_home_dir   => '/opt/oracle/middleware12c',
-    os_user               => 'oracle',
-    os_group              => 'dba',
+    middleware_home_dir   => $oraMdwHome,
+    os_user               => $oraUser,
+    os_group              => $oraGroup,
     download_dir          => '/var/tmp/install',
     source                => '/vagrant/weblogic-software',
     log_output            => true,
@@ -49,5 +77,5 @@ class weblogic::admin {
   #include saf_imported_destination_objects
   #include pack_domain
 
-  Class[weblogic::java] -> Class[orawls::weblogic]
-}  
+  Class[weblogic::os] -> Class[weblogic::java] -> Class[orawls::weblogic]
+}
