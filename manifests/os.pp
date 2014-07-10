@@ -6,7 +6,7 @@ class weblogic::os {
   create_resources('host',$host_instances, $default_params)
 
   exec { 'create swap file':
-    command => '/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=4096',
+    command => '/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024',
     creates => '/var/swap.1',
   }
 
