@@ -6,10 +6,6 @@ class weblogic::ssh (
     $sshPublicKey  = undef,
   ) {
 
-  notify { 'debug':
-    message => "sshPrivateKey = ${sshPrivateKey}",
-  }
-
   File {
     ensure => file,
     mode   => 0644,
