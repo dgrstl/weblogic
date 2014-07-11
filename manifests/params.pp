@@ -16,9 +16,8 @@ class weblogic::params {
     default => '1213',
   }
 
-  $oraDomain = $orawls::weblogic::version ? {
-    '1213'  => 'Wls1213',
-    default => 'undef',
+  $oraDomain = $::osfamily ? {
+    default => 'Wls1213',
   }
 
   $oraDomainRoot = $::osfamily ? {
@@ -26,7 +25,7 @@ class weblogic::params {
   }
 
   $oraLogs = $::osfamily ? {
-    default => '/var/log/oracle',
+    default => '/var/log/oracle12c',
   }
 
   $oraUser = $::osfamily ? {
@@ -50,7 +49,7 @@ class weblogic::params {
   }
 
   $oraWlsDomainTemplate = $::osfamily ? {
-    default => 'soa',
+    default => 'standard',
   }
 
   $jdkHome = $::osfamily ? {
@@ -82,11 +81,15 @@ class weblogic::params {
   }
 
   $oraWlsDevMode = $::osfamily ? {
-    default => 'false',
+    default => false,
   }
 
   $oraLogOutput = $::osfamily ? {
-    default => 'false',
+    default => false,
+  }
+
+  $wlsCustomTrust = $::osfamily ? {
+    default => true,
   }
 
 }
