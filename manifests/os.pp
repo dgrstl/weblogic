@@ -9,9 +9,12 @@ class weblogic::os (
   $sshPublicKey  = undef,
 ) {
 
-  #$default_params = {}
-  #$host_instances = hiera('hosts', {})
-  #create_resources('host',$host_instances, $default_params)
+  file { $oraLogs:
+    ensure => 'directory',
+    owner  => $oraUser,
+    group  => $oraGroup,
+    mode   => '0644',
+  }
 
   exec { 'create swap file':
     command => "/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=${osSwapSize}",
@@ -100,10 +103,4 @@ class weblogic::os (
   sysctl { 'net.core.wmem_default':         ensure => 'present', permanent => 'yes', value => '262144',}
   sysctl { 'net.core.wmem_max':             ensure => 'present', permanent => 'yes', value => '1048576',}
 
-file { $oraLogs:
-  ensure => 'file',
-  owner  => $oraUser,
-  group  => $oraGroup,
-  mode   => '0644',
-  }
 }
