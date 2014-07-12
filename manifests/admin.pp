@@ -1,29 +1,46 @@
 class weblogic::admin (
 
+  $osSwapSize            = $weblogic::params::swapSize,
+  $sshPrivateKey         = $weblogic::params::sshPrivateKey,
+  $sshPublicKey          = $weblogic::params::sshPublicKey,
+
+  $sourcePath            = $weblogic::params::sourcePath,
+  $downloadDir           = $weblogic::params::downloadDir,
+
+  $jdkHome               = $weblogic::params::jdkHome,
+  $jdkVersion            = $weblogic::params::jdkVersion,
+  $jdkFullVersion        = $weblogic::params::jdkFullVersion,
+  $jdkCryptoExtFile      = $weblogic::params::jdkCryptoExtFile,
+
   $oraHome               = $weblogic::params::oraHome,
   $oraMdwHome            = $weblogic::params::oraMdwHome,
-  $oraDomain             = $weblogic::params::oraDomain,
-  $oraDomainRoot         = $weblogic::params::oraDomainRoot,
   $oraLogs               = $weblogic::params::oraLogs,
   $oraUser               = $weblogic::params::oraUser,
   $oraGroup              = $weblogic::params::oraGroup,
-  $sourcePath            = $weblogic::params::sourcePath,
-  $downloadDir           = $weblogic::params::downloadDir,
-  $wlsHome               = $weblogic::params::wlsHome,
-  $oraVersion            = $weblogic::params::oraVersion,
-  $oraWlsDomainTemplate  = $weblogic::params::oraWlsDomainTemplate,
-  $oraAdminServerName    = $weblogic::params::oraAdminServerName,
-  $oraAdminServerAddress = $weblogic::params::oraAdminServerAddress,
-  $oraAdminServerPort    = $weblogic::params::oraAdminServerPort,
-  $oraWlsUser            = $weblogic::params::oraWlsUser,
-  $oraWlsPassword        = $weblogic::params::oraWlsPassword,
-  $oraNodeManagerPort    = $weblogic::params::oraNodeManagerPort,
-  $oraWlsDevMode         = $weblogic::params::oraWlsDevMode,
   $oraLogOutput          = $weblogic::params::oraLogOutput,
-  $jdkHome               = $weblogic::params::jdkHome,
+  $oraInstaller          = $weblogic::params::oraInstaller,
+
+  $wlsVersion            = $weblogic::params::wlsVersion,
+  $wlsHome               = $weblogic::params::wlsHome,
+
+  $wlsDomainsRoot        = $weblogic::params::wlsDomainsRoot,
+  $wlsApplicationsRoot   = $weblogic::params::wlsApplicationsRoot,
+  $wlsDomain             = $weblogic::params::wlsDomain,
+  $wlsDomainTemplate     = $weblogic::params::wlsDomainTemplate,
+
+  $wlsAdminServerName    = $weblogic::params::wlsAdminServerName,
+  $wlsAdminServerAddress = $weblogic::params::wlsAdminServerAddress,
+  $wlsAdminServerPort    = $weblogic::params::wlsAdminServerPort,
+  $wlsUser               = $weblogic::params::wlsUser,
+  $wlsPassword           = $weblogic::params::wlsPassword,
+
+  $wlsNodeManagerAddress = $weblogic::params::wlsNodeManagerAddress,
+  $wlsNodeManagerPort    = $weblogic::params::wlsNodeManagerPort,
+  $wlsDevMode            = $weblogic::params::wlsDevMode,
+
   $wlsCustomTrust        = $weblogic::params::wlsCustomTrust,
-  $wlsTrustKeystoreFile  = $weblogic::params::wlsTrustKeystoreFile,
-  $wlsTrustKeystorePassphrase = $weblogic::params::wlsTrustKeystorePassphrase
+  $wlsTrustKSFile        = $weblogic::params::wlsTrustKSFile,
+  $wlsTrustKSPassphrase  = $weblogic::params::wlsTrustKSPassphrase,
 
   ) inherits weblogic::params {
 
@@ -31,9 +48,9 @@ class weblogic::admin (
     oraUser       => $oraUser,
     oraGroup      => $oraGroup,
     oraLogs       => $oraLogs,
-    osSwapSize    => 1024,
-    sshPrivateKey => 'puppet:///modules/weblogic/ssh/id_rsa',
-    sshPublicKey  => 'puppet:///modules/weblogic/ssh/id_rsa.pub',
+    osSwapSize    => $osSwapSize,
+    sshPrivateKey => $sshPrivateKey,
+    sshPublicKey  => $sshPublicKey,
   } contain 'weblogic::os'
 
   $is64bit = $::hardwaremodel ? {
@@ -42,41 +59,38 @@ class weblogic::admin (
   }
 
   class {'weblogic::java':
-    version                   => '7u51',
-    fullVersion               => 'jdk1.7.0_51',
+    version                   => $jdkVersion,
+    fullVersion               => $jdkFullVersion,
     downloadDir               => $downloadDir,
-    cryptographyExtensionFile => 'UnlimitedJCEPolicyJDK7.zip',
+    cryptographyExtensionFile => $jdkCryptoExtFile,
     sourcePath                => $sourcePath,
     x64                       => $is64bit,
     require                   => Class[Weblogic::Os],
   } contain 'weblogic::java'
 
-  # this seem like a duplication of the jdk7::install urandomJavaFix option
-  #contain orawls::urandomfix
-
   class {'orautils':
     osOracleHomeParam       => $oraHome,
     oraInventoryParam       => "${oraHome}/oraInventory",
     osLogFolderParam        => $oraLogs,
-    osDomainTypeParam       => 'web', # ??
-    osDownloadFolderParam   => "${oraHome}/install", # ??
-    osDomainParam           => $oraDomain,
+    osDomainTypeParam       => $wlsDomainTemplate,
+    osDownloadFolderParam   => $downloadDir,
+    osDomainParam           => $wlsDomain,
     osMdwHomeParam          => $oraMdwHome,
-    osDomainPathParam       => "${oraDomainRoot}/${oraDomain}",
-    nodeMgrPathParam        => "${oraDomainRoot}/${oraDomain}/bin",
-    nodeMgrAddressParam     => $oraAdminServerName,
-    wlsUserParam            => $oraWlsUser,
-    wlsPasswordParam        => $oraWlsPassword,
-    wlsAdminServerParam     => $oraAdminServerName,
+    osDomainPathParam       => "${wlsDomainsRoot}/${wlsDomain}",
+    nodeMgrPathParam        => "${wlsDomainsRoot}/${wlsDomain}/bin",
+    nodeMgrAddressParam     => $wlsAdminServerName,
+    wlsUserParam            => $wlsUser,
+    wlsPasswordParam        => $wlsPassword,
+    wlsAdminServerParam     => $wlsAdminServerName,
     customTrust             => $wlsCustomTrust,
-    trustKeystoreFile       => $wlsTrustKeystoreFile,
-    trustKeystorePassphrase => $wlsTrustKeystorePassphrase,
+    trustKeystoreFile       => $wlsTrustKSFile,
+    trustKeystorePassphrase => $wlsTrustKSPassphrase,
     require                 => Class[orawls::weblogic],
   } contain 'orautils'
 
   class {'orawls::weblogic':
-    version              => $oraVersion,
-    filename             => 'fmw_12.1.3.0.0_wls.jar',
+    version              => $wlsVersion,
+    filename             => $oraInstaller,
     jdk_home_dir         => $jdkHome,
     oracle_base_home_dir => $oraHome,
     middleware_home_dir  => $oraMdwHome,
@@ -92,48 +106,74 @@ class weblogic::admin (
   #include opatch
 
   class {'weblogic::domain':
-    oraVersion            => $oraVersion,
+    wlsVersion            => $wlsVersion,
     wlsHome               => $wlsHome,
     oraMdwHome            => $oraMdwHome,
     jdkHome               => $jdkHome,
-    oraWlsDomainTemplate  => $oraWlsDomainTemplate,
-    oraDomain             => $oraDomain,
-    oraWlsDevMode         => $oraWlsDevMode,
-    oraAdminServerName    => $oraAdminServerName,
-    oraAdminServerAddress => $oraAdminServerAddress,
-    oraAdminServerPort    => $oraAdminServerPort,
-    oraNodeManagerAddress => $oraAdminServerAddress,
-    oraNodeManagerPort    => $oraNodeManagerPort,
-    #java_arguments       => { "ADM"                  => "...", "OSB" => "...", "SOA" => "...", "BAM" => "..."},
-    oraWlsUser            => $oraWlsUser,
-    oraWlsPassword        => $oraWlsPassword,
+    wlsDomainsRoot        => $wlsDomainsRoot,
+    wlsApplicationsRoot   => $wlsApplicationsRoot,
+    wlsDomainTemplate     => $wlsDomainTemplate,
+    wlsDomain             => $wlsDomain,
+    wlsDevMode            => $wlsDevMode,
+    wlsAdminServerName    => $wlsAdminServerName,
+    wlsAdminServerAddress => $wlsAdminServerAddress,
+    wlsAdminServerPort    => $wlsAdminServerPort,
+    wlsNodeManagerAddress => $wlsNodeManagerAddress,
+    wlsNodeManagerPort    => $wlsNodeManagerPort,
+    wlsUser               => $wlsUser,
+    wlsPassword           => $wlsPassword,
     oraUser               => $oraUser,
     oraGroup              => $oraGroup,
-    oraLogs               => $oraLogs,
     downloadDir           => $downloadDir,
+    oraLogs               => $oraLogs,
     oraLogOutput          => $oraLogOutput,
+    wlsCustomTrust        => $wlsCustomTrust,
+    wlsTrustKSFile        => $wlsTrustKSFile,
+    wlsTrustKSPassphrase  => $wlsTrustKSPassphrase,
     require               => Class[orawls::weblogic],
   } contain 'weblogic::domain'
 
   class {'weblogic::nodemanager':
-    oraVersion                 => $oraVersion,
-    wlsHome                    => $wlsHome,
-    oraMdwHome                 => $oraMdwHome,
-    jdkHome                    => $jdkHome,
-    oraAdminServerAddress      => $oraAdminServerAddress,
-    oraNodeManagerPort         => $oraNodeManagerPort,
-    oraDomain                  => $oraDomain,
-    oraUser                    => $oraUser,
-    oraGroup                   => $oraGroup,
-    oraLogs                    => $oraLogs,
-    downloadDir                => $downloadDir,
-    oraLogOutput               => $oraLogOutput,
-    wlsCustomTrust             => $wlsCustomTrust,
-    wlsTrustKeystoreFile       => $wlsTrustKeystoreFile,
-    wlsTrustKeystorePassphrase => $wlsTrustKeystorePassphrase,
-    require                    => Class[weblogic::domain],
+    wlsVersion            => $wlsVersion,
+    wlsHome               => $wlsHome,
+    oraMdwHome            => $oraMdwHome,
+    jdkHome               => $jdkHome,
+    wlsNodeManagerPort    => $wlsNodeManagerPort,
+    wlsNodeManagerAddress => $wlsNodeManagerAddress,
+    wlsCustomTrust        => $wlsCustomTrust,
+    wlsTrustKSFile        => $wlsTrustKSFile,
+    wlsTrustKSPassphrase  => $wlsTrustKSPassphrase,
+    wlsDomainsRoot        => $wlsDomainsRoot,
+    wlsDomain             => $wlsDomain,
+    oraUser               => $oraUser,
+    oraGroup              => $oraGroup,
+    downloadDir           => $downloadDir,
+    oraLogs               => $oraLogs,
+    oraLogOutput          => $oraLogOutput,
+    require               => Class[weblogic::domain],
   } contain 'weblogic::nodemanager'
 
+  #class {'weblogic::startWls':
+  #oraMdwHome            => $oraMdwHome,
+  #  wlsHome               => $wlsHome,
+  #  jdkHome               => $jdkHome,
+  #  wlsDomainsRoot         => $wlsDomainsRoot,
+  #  wlsDomain             => $wlsDomain,
+  #  wlsDevMode         => $wlsDevMode,
+  #  wlsAdminServerName    => $wlsAdminServerName,
+  #  wlsAdminServerAddress => $wlsAdminServerAddress,
+  #  wlsAdminServerPort    => $wlsAdminServerPort,
+  #  wlsNodeManagerAddress => $wlsAdminServerAddress,
+  #  wlsNodeManagerPort    => $wlsNodeManagerPort,
+  #  wlsUser            => $wlsUser,
+  #  wlsPassword        => $wlsPassword,
+  #  oraUser               => $oraUser,
+  #  oraGroup              => $oraGroup,
+  #  oraLogs               => $oraLogs,
+  #  downloadDir           => $downloadDir,
+  #  oraLogOutput          => $oraLogOutput,
+  #  require               => Class[orawls::weblogic],
+  #} contain 'weblogic::domain'
   #include nodemanager, startwls, userconfig
   #include users
   #include groups

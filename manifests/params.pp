@@ -1,5 +1,17 @@
 class weblogic::params {
 
+  $osSwapSize = $::osfamily ? {
+    default => '512',
+  }
+
+  $sshPrivateKey = $::osfamily ? {
+    default => 'puppet:///modules/weblogic/ssh/id_rsa',
+  }
+
+  $sshPublicKey = $::osfamily ? {
+    default => 'puppet:///modules/weblogic/ssh/id_rsa.pub',
+  }
+
   $oraHome = $::osfamily ? {
     default => '/opt/oracle',
   }
@@ -12,16 +24,20 @@ class weblogic::params {
     default => "${oraMdwHome}/wlserver",
   }
 
-  $oraVersion = $::osfamily ? {
+  $wlsVersion = $::osfamily ? {
     default => '1213',
   }
 
-  $oraDomain = $::osfamily ? {
+  $wlsDomain = $::osfamily ? {
     default => 'Wls1213',
   }
 
-  $oraDomainRoot = $::osfamily ? {
+  $wlsDomainsRoot = $::osfamily ? {
     default => "${oraHome}/domains",
+  }
+
+  $wlsApplicationsRoot = $::osfamily ? {
+    default => "${oraHome}/applications",
   }
 
   $oraLogs = $::osfamily ? {
@@ -41,14 +57,14 @@ class weblogic::params {
   }
 
   $downloadDir = $::osfamily ? {
-    default => '/var/tmp/install',
+    default => '/vagrant/tmp/install',
   }
 
   $osHomeRoot = $::osfamily ? {
     default => '/home',
   }
 
-  $oraWlsDomainTemplate = $::osfamily ? {
+  $wlsDomainTemplate = $::osfamily ? {
     default => 'standard',
   }
 
@@ -56,31 +72,47 @@ class weblogic::params {
     default => '/usr/java/latest',
   }
 
-  $oraAdminServerName = $::osfamily ? {
+  $jdkVersion = $::osfamily ? {
+    default => '7u51',
+  }
+
+  $jdkFullVersion = $::osfamily ? {
+    default => 'jdk1.7.0_51',
+  }
+
+  $jdkCryptoExtFile = $::osfamily ? {
+    default => 'UnlimitedJCEPolicyJDK7.zip',
+  }
+
+  $wlsAdminServerName = $::osfamily ? {
     default => 'AdminServer',
   }
 
-  $oraAdminServerAddress = $::osfamily ? {
+  $wlsAdminServerAddress = $::osfamily ? {
     default => 'centos65a',
   }
 
-  $oraAdminServerPort = $::osfamily ? {
+  $wlsAdminServerPort = $::osfamily ? {
     default => '7001',
   }
 
-  $oraWlsUser = $::osfamily ? {
+  $wlsUser = $::osfamily ? {
     default => 'weblogic',
   }
 
-  $oraWlsPassword = $::osfamily ? {
+  $wlsPassword = $::osfamily ? {
     default => 'weblogic1',
   }
 
-  $oraNodeManagerPort = $::osfamily ? {
+  $wlsNodeManagerAddress = $::osfamily ? {
+    default => 'centos65a',
+  }
+
+  $wlsNodeManagerPort = $::osfamily ? {
     default => '5556',
   }
 
-  $oraWlsDevMode = $::osfamily ? {
+  $wlsDevMode = $::osfamily ? {
     default => false,
   }
 
@@ -90,6 +122,18 @@ class weblogic::params {
 
   $wlsCustomTrust = $::osfamily ? {
     default => true,
+  }
+
+  $wlsTrustKSFile = $::osfamily ? {
+    default => 'puppet:///modules/weblogic/oracle/truststore.jks',
+  }
+
+  $wlsTrustKSPassphrase = $::osfamily ? {
+    default => 'welcome',
+  }
+
+  $oraInstaller = $::osfamily ? {
+    default => 'fmw_12.1.3.0.0_wls.jar',
   }
 
 }
