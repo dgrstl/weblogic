@@ -21,4 +21,4 @@ Used the following software (downloaded separately)
 ##Limitations
   This is has only been lightly testest on CentOS 65
 
-Please log tickets and issues at our [Projects site](https://github.com/dgrstl/weblogic)
+Please log tickets and issues at our [here](https://github.com/dgrstl/weblogic/issues)
