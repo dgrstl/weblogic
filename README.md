@@ -9,11 +9,11 @@ Used the following software (downloaded separately)
   $sourcePath param
 
 ###Java
-  jdk-7u51-linux-x64.tar.gz   ($jdkVersion param)
+  - jdk-7u51-linux-x64.tar.gz   (`$jdkVersion` param)
 
 ###weblogic 12.1.3
-  fmw_12.1.3.0.0_wls.jar      ($oraInstaller param)
-  UnlimitedJCEPolicyJDK7.zip  ($jdkCryptoExtFile param)
+  - fmw_12.1.3.0.0_wls.jar      (`$oraInstaller` param)
+  - UnlimitedJCEPolicyJDK7.zip  (`$jdkCryptoExtFile` param)
 
 ##Usage
   Classify a node with weblogic::admin.
