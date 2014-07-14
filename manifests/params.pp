@@ -16,6 +16,10 @@ class weblogic::params {
     default => '/opt/oracle',
   }
 
+  $oraTrustDir = $::osfamily ? {
+    default => "${oraHome}/trust",
+  }
+
   $oraMdwHome = $::osfamily ? {
     default => "${oraHome}/middleware12c",
   }
@@ -33,11 +37,11 @@ class weblogic::params {
   }
 
   $wlsDomainsRoot = $::osfamily ? {
-    default => "${oraHome}/domains",
+    default => undef, # will default to ${oraMwdHome}/user_projects/domains
   }
 
   $wlsApplicationsRoot = $::osfamily ? {
-    default => "${oraHome}/applications",
+    default => undef, # will default to ${middleware_home_dir}/user_projects/applications
   }
 
   $oraLogs = $::osfamily ? {
@@ -121,11 +125,15 @@ class weblogic::params {
   }
 
   $wlsCustomTrust = $::osfamily ? {
-    default => true,
+    default => false,
   }
 
   $wlsTrustKSFile = $::osfamily ? {
-    default => 'puppet:///modules/weblogic/oracle/truststore.jks',
+    default => 'truststore.jks',
+  }
+
+  $wlsTrustKSFileSource = $::osfamily ? {
+    default => "/vagrant/oracle/${wlsTrustKSFile}",
   }
 
   $wlsTrustKSPassphrase = $::osfamily ? {
