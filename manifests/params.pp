@@ -180,4 +180,12 @@ class weblogic::params {
     default => '/home/oracle',
   }
 
+  $wlsAthProvider = $::osfamily ? {
+    default => 'DefaultAuthenticator',
+  }
+
+  $wlsRealm = $::osfamily ? {
+    default => 'myrealm',
+  }
+
 }

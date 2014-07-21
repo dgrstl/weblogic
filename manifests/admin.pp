@@ -206,8 +206,7 @@ class weblogic::admin (
     require               => Class['weblogic::startWls'],
   } contain 'weblogic::storeuserconfig'
 
-  #include nodemanager, startwls, userconfig
-  #include users
+  include users
   #include groups
   #include machines
   #include managed_servers
