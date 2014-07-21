@@ -1,14 +1,20 @@
 class weblogic::java (
-    $version                    = undef,
-    $fullVersion                = undef,
-    $downloadDir                = undef,
-    $cryptographyExtensionFile  = undef,
-    $sourcePath                 = undef,
-    $urandomJavaFix             = true,
-    $rsakeySizeFix              = true,
-    $alternativesPriority       = 18000,
-    $x64                        = undef,
+    $jdkVersion                   = $weblogic::params::jdkVersion,
+    $jdkFullVersion               = $weblogic::params::jdkVersion,
+    $downloadDir                  = $weblogic::params::downloadDir,
+    $jdkCryptographyExtensionFile = $weblogic::params::jkdCryptoExtFile,
+    $sourcePath                   = $weblogic::params::sourcePath,
+    $jdkURandomJavaFix            = $weblogic::params::jdkURandomJavaFix,
+    $jdkRsakeySizeFix             = $weblogic::params::jdkRsaKeySizeFix,
+    $jdkAlternativesPriority      = $weblogic::params::jdkAlternativesPriority,
   ) inherits weblogic::params {
+
+  require weblogic::os
+
+  $is64bit = $::hardwaremodel ? {
+    x86_64  => true,
+    default => false,
+  }
 
   $remove = [ 'java-1.7.0-openjdk.x86_64', 'java-1.6.0-openjdk.x86_64' ]
 
@@ -16,19 +22,18 @@ class weblogic::java (
     ensure  => absent,
   }
 
-  #contain jdk7
-
-  jdk7::install7{ 'jdk1.7.0_51':
-      version                   => $version,
-      fullVersion               => $fullVersion,
-      alternativesPriority      => $alternativesPriority,
-      x64                       => $x64,
+  jdk7::install7{ $jdkFullVersion :
+      version                   => $jdkVersion,
+      fullVersion               => $jdkFullVersion,
+      alternativesPriority      => $jdkAlternativesPriority,
+      x64                       => $is64bit,
       downloadDir               => $downloadDir,
-      urandomJavaFix            => $urandomJavaFix,
-      rsakeySizeFix             => $rsakeySizeFix,
-      cryptographyExtensionFile => $cryptographyExtensionFile,
+      urandomJavaFix            => $jdkUrandomJavaFix,
+      rsakeySizeFix             => $jdkRsakeySizeFix,
+      cryptographyExtensionFile => $jdkCryptographyExtensionFile,
       sourcePath                => $sourcePath,
   }
+
   # ->
   # file { $LOG_DIR:
   #   ensure  => directory,

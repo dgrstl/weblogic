@@ -5,10 +5,12 @@ class weblogic::nodemanager (
     $wlsHome               = undef,
     $wlsNodeManagerPort    = undef,
     $wlsNodeManagerAddress = undef,
+    $oraTrustDir           = undef,
     $wlsCustomTrust        = undef,
+    $wlsTrustKSSource      = undef,
     $wlsTrustKSFile        = undef,
     $wlsTrustKSPassphrase  = undef,
-    $wlsDomainsRoot         = undef,
+    $wlsDomainsRoot        = undef,
     $wlsDomain             = undef,
     $jdkHome               = undef,
     $oraUser               = undef,
@@ -18,6 +20,8 @@ class weblogic::nodemanager (
     $oraLogOutput          = undef,
 
   ) {
+
+  require orawls::weblogic, weblogic::domain
 
   orawls::nodemanager {'wls12nodeManager':
     version                   => $wlsVersion,

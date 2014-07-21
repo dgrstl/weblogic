@@ -1,13 +1,17 @@
 # operating settings for Middleware
 class weblogic::os (
-  $oraUser  = 'oracle',
-  $osHomeRoot = '/home',
-  $oraGroup = 'dba',
-  $oraLogs  = '/var/log/oracle',
-  $osSwapSize = '4096',
-  $sshPrivateKey = undef,
-  $sshPublicKey  = undef,
-) {
+  $oraUser              = $weblogic::params::oraUser,
+  $osHomeRoot           = $weblogic::params::osHomeRoot,
+  $oraGroup             = $weblogic::params::oraGroup,
+  $oraLogs              = $weblogic::params::oraLogs,
+  $osSwapSize           = $weblogic::params::osSwapSize,
+  $sshPrivateKey        = $weblogic::params::sshPrivateKey,
+  $sshPublicKey         = $weblogic::params::sshPublicKey,
+  $oraTrustDir          = $weblogic::params::oraTrustDir,
+  $wlsCustomTrust       = $weblogic::params::wlsCustomTrust,
+  $wlsTrustKSFileSource = $weblogic::params::wlsTrustKSFileSource,
+  $wlsTrustKSFile       = $weblogic::params::wlsTrustKSFile,
+) inherits weblogic::params {
 
   file { $oraLogs:
     ensure => 'directory',
@@ -15,6 +19,29 @@ class weblogic::os (
     group  => $oraGroup,
     mode   => '0644',
   }
+
+
+  /*
+  if $wlsCustomTrust == true {
+    $keystoreTarget = "${oraTrustDir}/${wlsTrustKSFile}"
+
+    file { $oraTrustDir:
+      ensure => 'directory',
+      owner  => $oraUser,
+      group  => $oraGroup,
+      mode   => '0644',
+    }
+
+    file {$keystoreTarget:
+      ensure  => 'file',
+      owner   => $oraUser,
+      group   => $oraGroup,
+      mode    => '0755',
+      source  => $wlsTrustKSFileSource,
+      require => File[$oraTrustDir],
+    }
+  }
+  */
 
   exec { 'create swap file':
     command => "/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=${osSwapSize}",

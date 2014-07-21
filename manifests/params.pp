@@ -1,5 +1,9 @@
 class weblogic::params {
 
+  $oraInstallSource = $::osfamily ? {
+    default => '/vagrant/oracle',
+  }
+
   $osSwapSize = $::osfamily ? {
     default => '512',
   }
@@ -37,11 +41,11 @@ class weblogic::params {
   }
 
   $wlsDomainsRoot = $::osfamily ? {
-    default => undef, # will default to ${oraMwdHome}/user_projects/domains
+    default => "${oraMdwHome}/user_projects/domains",
   }
 
   $wlsApplicationsRoot = $::osfamily ? {
-    default => undef, # will default to ${middleware_home_dir}/user_projects/applications
+    default => "${oraMdwHome}/user_projects/applications",
   }
 
   $oraLogs = $::osfamily ? {
@@ -57,11 +61,11 @@ class weblogic::params {
   }
 
   $sourcePath = $::osfamily ? {
-    default => '/vagrant/weblogic-software',
+    default => "${oraInstallSource}/software",
   }
 
   $downloadDir = $::osfamily ? {
-    default => '/vagrant/tmp/install',
+    default => "${oraInstallSource}/tmp/install",
   }
 
   $osHomeRoot = $::osfamily ? {
@@ -86,6 +90,18 @@ class weblogic::params {
 
   $jdkCryptoExtFile = $::osfamily ? {
     default => 'UnlimitedJCEPolicyJDK7.zip',
+  }
+
+  $jdkURandomFix = $::osfamily ? {
+    default => true,
+  }
+
+  $jdkRsaKeySizeFix = $::osfamily ? {
+    default => true,
+  }
+
+  $jdkAlternativesPriority = $::osfamily ? {
+    default => 18000,
   }
 
   $wlsAdminServerName = $::osfamily ? {
@@ -133,7 +149,7 @@ class weblogic::params {
   }
 
   $wlsTrustKSFileSource = $::osfamily ? {
-    default => "/vagrant/oracle/${wlsTrustKSFile}",
+    default => "${oraInstallSource}/keystores/${wlsTrustKSFile}",
   }
 
   $wlsTrustKSPassphrase = $::osfamily ? {
@@ -142,6 +158,26 @@ class weblogic::params {
 
   $oraInstaller = $::osfamily ? {
     default => 'fmw_12.1.3.0.0_wls.jar',
+  }
+
+  $wlsServerType = $::osfamily ? {
+    default => 'admin',
+  }
+
+  $wlsTarget = $::osfamily ? {
+    default => 'server',
+  }
+
+  $wlsAction = $::osfamily ? {
+    default => 'start',
+  }
+
+  $wlsServerName = $::osfamily ? {
+    default => 'AdminServer',
+  }
+
+  $wlsUserConfigDir = $::osfamily ? {
+    default => '/home/oracle',
   }
 
 }
