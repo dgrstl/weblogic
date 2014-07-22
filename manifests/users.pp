@@ -3,7 +3,7 @@ class weblogic::users
     $wlsAthProvider        = $weblogic::params::wlsAthProvider,
     $wlsRealm              = $weblogic::params::wlsRealm,
     $wlsPassword           = $weblogic::params::wlsPassword,
-  ) {
+  ) inherits weblogic::params {
   require orawls::weblogic, weblogic::domain, weblogic::nodemanager,
     weblogic::startwls
 

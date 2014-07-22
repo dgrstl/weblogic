@@ -116,6 +116,14 @@ class weblogic::params {
     default => '7001',
   }
 
+  $wlsServerPort = $::osfamily ? {
+    default => '7001',
+  }
+
+  $wlsSSLServerPort = $::osfamily ? {
+    default => '7201',
+  }
+
   $wlsUser = $::osfamily ? {
     default => 'weblogic',
   }

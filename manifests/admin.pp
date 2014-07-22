@@ -115,9 +115,6 @@ class weblogic::admin (
     require              => Class[weblogic::java],
   } contain 'orawls::weblogic'
 
-  #include fmw
-  #include opatch
-
   class {'weblogic::domain':
     wlsVersion            => $wlsVersion,
     wlsHome               => $wlsHome,
@@ -206,10 +203,10 @@ class weblogic::admin (
     require               => Class['weblogic::startWls'],
   } contain 'weblogic::storeuserconfig'
 
-  include users
-  #include groups
-  #include machines
-  #include managed_servers
+  include weblogic::users
+  #include weblogic::groups
+  include weblogic::machines
+  include weblogic::managed_servers
   #include managed_servers_channels
   #include datasources
   #include clusters
