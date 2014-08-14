@@ -15,9 +15,9 @@ class weblogic::managed_servers
     log_number_of_files_limited    => '1',
     log_rotate_logon_startup       => '1',
     log_rotationtype               => 'bySize',
-    sslenabled                     => '1',
-    sslhostnameverificationignored => '1',
-    ssllistenport                  => $wlsSSLServerPort,
+    sslenabled                     => '0',
+    #sslhostnameverificationignored => '1',
+    #ssllistenport                  => $wlsSSLServerPort,
   }
 
   wls_server { 'default/centos65b':
